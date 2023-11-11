@@ -1,0 +1,863 @@
+The task consists of 3 files, sll.hpp where class template and declaration of member functions are.
+Tests.cpp where a collection of tests are located and main.
+
+Sll.hpp
+
+#ifndef H_SLL
+#define H_SLL
+#include <iostream>
+
+//EADS LAB 1
+//Task is to design and implement this class, iterator can be added, but not recommended, it is a source of errors
+template<typename key, typename info>
+class Sequence { //implemented using single linked list
+//non-negotiables
+//methods should not use index as a way to identify a given element, so element should be identified using keys
+public:
+	Sequence();
+	~Sequence();
+	bool insertAfter(const key& What, const info& iWhat, const key& where, int which = 1);
+	void pushFront(const key& k, const info& i);
+	void pushBack(const key& k, const info& i);
+	bool remove(const key& k, int which = 1);
+	bool popFront();
+	bool popBack();
+	//it is important to highlight the value of the idea here, these methods can work regardless of the data structure we decide to choose
+	//implementation is secondary.
+	//another way to implement front is as follows
+	bool front(info& i) const;
+	bool back(info& i) const;
+	bool getinfo(info& i, const key& k, int which = 1);
+	int length() const;
+	bool isempty() const;
+	void clear();
+	bool search(const key& k, int which = 1);
+	friend std::ostream& operator<<(std::ostream& o, const Sequence<key, info>& s)
+	{
+		Node *curr = s.first;
+		if (curr != NULL)
+		{
+			do
+			{
+				o << "(" << curr->ki << ", " << curr->inf << ")";
+				curr = curr->next;
+			} while (curr);
+			
+		}
+		else
+		{
+			o << "List is empty!";
+		}
+		return o;
+	}
+	void reverse();
+	void swap(Sequence<key, info>& s);
+	void split(Sequence<key, info>& result1, int len1, int repeat1,
+			Sequence<key, info>& result2, int len2, int repeat2);
+	//Sequence<key, info> subSequence (const key& startK, int startCh, const key& endK, int endCh);
+	// this will allow us to create subsequences given the arguments above, we may overload the arguments to have different options when creating
+	// a subsequence
+private:
+	struct Node
+	{
+		key ki;
+		info inf;
+		Node *next;
+	};
+	Node *first; //first element in the sequence (head, front)
+	Node *last;	//last element in the list (end)
+	Node *current;
+	int len; //length of the sequence
+	Node *find(const key& k, int which = 1)
+	{
+		int count = 0;
+		current = first;
+		if (!isempty()) //makes sure list isn't empty
+		{
+			while (count != which)
+			{
+				if (current->ki == k) //key = location specified by user
+				{
+					count++; //increase occurrance
+					if (count == which) //check if which = occurrance
+					{
+						return current;
+					}
+					else if (current->next != NULL)
+					{
+						current = current->next;
+					}
+				}
+				else if (current->next != NULL)
+				{
+					current = current->next;
+				}
+				else
+				{ 
+				return NULL;
+				}
+			}
+		}
+		return NULL;
+		//finds element and returns its address
+	}
+};
+
+//external function that checks proper implementation of the class, its flexibility per se, this is an external function ofc, not friend or method
+//the main idea however, involves the proper design of the class, that's where the focus is, the focus shouldn't be to just implement a class that satisfies the implmenetation of source
+template <typename key, typename info>
+//splits the sequence into two results
+void Sequence<key, info>::split(Sequence<key, info>& result1, int len1, int repeat1,
+			Sequence<key, info>& result2, int len2, int repeat2)
+{
+	if (isempty())
+	{
+		std::cout << "List is empty!" << std::endl;
+	}
+	current = first;
+	int r1 = 0;
+	int r2 = 0;
+	int l1, l2;
+	while(r1 != repeat1 || r2 != repeat2) //this makes sure it keeps running as long as r1 or 
+	{
+		if (r1 != repeat1)
+		{
+			l1 = 0;
+		}
+		while(l1 != len1)
+		{
+			if(current)
+			{
+				result1.pushBack(current->ki, current->inf);
+				l1++;
+				if (current->next != NULL)
+				{
+					current = current->next;
+				}
+				else
+				{
+					return;
+				}
+			}
+			//copies len1 items to result1
+		}
+		if (l1 == len1)
+		{
+			r1++;
+		}
+		if (r2 != repeat2)
+		{
+			l2 = 0;
+		}
+		while(l2 != len2)
+		{
+			if (current)
+			{
+				result2.pushBack(current->ki, current->inf);
+				l2++;
+				if (current->next != NULL)
+				{
+					current = current->next;
+				}
+				else
+				{
+					return;
+				}
+			}
+			//copies len2 items to result2
+		} 
+		if (l2 == len2)
+		{
+			r2++;
+		}
+	}
+}
+//th function splits the sequence, it starts at the beginning 
+//tests are very much appreciated
+
+template <typename key, typename info>
+Sequence<key, info>::Sequence()
+{
+	first = NULL;
+	last = NULL;
+	len = 0;
+}
+
+template <typename key, typename info>
+Sequence<key, info>::~Sequence()
+{
+	clear();
+	//destructor, makes sure memory leaks won't happen
+}
+
+template <typename key, typename info>
+bool Sequence<key, info>::insertAfter(const key& What, const info& iWhat, const key& where, int which)
+{
+	if (isempty())
+	{
+		std::cout << "List is empty!" << std::endl;
+		return false;
+	}
+	Node *p = NULL;
+	current = find(where, which);
+	if (current == NULL)
+	{
+		std::cout << "Element does not exist!" << std::endl;
+		return false;
+	}
+
+	p = current->next;
+	Node *elem = new Node;
+	elem->ki = What;
+	elem->inf = iWhat;
+	elem->next = p;
+	current->next = elem;
+	len++;
+	return true;
+	//inserts a node after the <which> occurrance of a specific key
+	//returns true if successful, increments length, false in case <where> cannot be found
+}
+
+template <typename key, typename info>
+void Sequence<key, info>::pushFront(const key& k, const info& i)
+{
+	Node *elem = new Node;
+	elem->ki = k;
+	elem->inf = i;
+	elem->next = NULL;
+	if (len == 0)
+	{
+		first = elem;
+		last = elem;
+		len++;
+	}
+	else
+	{
+		elem->next = first;
+		first = elem;
+		len++;
+	}
+
+	
+	//inserts an element at the front of the list (inserted element becomes first element)
+	//list must exist
+	//different case when inserted element is first element to be inserted or otherwise
+	//increments length
+	//should report error in case element cannot be pushed
+}
+
+template <typename key, typename info>
+void Sequence<key, info>::pushBack(const key& k, const info& i)
+{
+	current = last;
+	Node *elem = new Node;
+	elem->ki = k;
+	elem->inf = i;
+	elem->next = NULL;
+	if (len == 0)
+	{
+		first = elem;
+		last = elem;
+		len++;
+	}
+	else
+	{
+		current->next = elem;
+		last = elem;
+		len++;
+	}
+
+	//inserts an element at the end of the list
+	//inserted element becomes last element
+	//list must exist
+	//different cases when element is the first element to be added or otherwise
+	//increments length
+	//should report error in case element cannot be pushed
+}
+
+template <typename key, typename info>
+bool Sequence<key, info>::remove(const key& k, int which)
+{
+	if (isempty())
+	{
+		std::cout << "List is empty!" << std::endl;
+		return false;
+	}
+	Node *p = first;
+	current = find(k, which);
+	if (current == NULL)
+	{
+		std::cout << "Element does not exist!" << std::endl;
+		return false;
+	}
+	if (len == 1)
+	{
+		popFront();
+		return true;
+	}
+	Node *q = current->next;
+	while (p->next != current)
+	{
+		p = p->next;
+	}
+	p->next = q;
+	delete current;
+	len--;
+	return true;
+	
+	//list must not be empty
+	//removes an element with <which> occurance given a key
+	//returns true if successful, decrement length
+	//returns false if key cannot be found, or which is invalid
+}
+
+template <typename key, typename info>
+bool Sequence<key, info>::popFront()
+{
+	if(isempty())
+	{
+		std::cout << "List is empty!" << std::endl;
+		return false;
+	}
+	//must consider separate cases for when there is 1 element or more in the list
+	current = first;
+	if(len == 1)
+	{
+		first = NULL;
+		last = NULL;
+		delete current;
+		len--;
+		return true;
+	}
+	else
+	{
+		first = current->next;
+		delete current;
+		len--;
+		return true;
+	}
+	
+	//removes first element, list must have at least one element
+	//returns true if successfully removes the element, decrement length
+	//list must exist and have at least one element
+	//returns false if popping fails
+}
+
+template <typename key, typename info>
+bool Sequence<key, info>::popBack() //standard stl approach involves popping and forgetting, not returning the element
+{
+	if (isempty())
+	{
+		std::cout << "List is empty!" << std::endl;
+		return false;
+	}
+	current = last;
+	if (len == 1)
+	{
+		first = NULL;
+		last = NULL;
+		delete current;
+		len--;
+		return true;
+	}
+	else
+	{
+		Node *p = first;
+		while (p->next != last)
+		{
+			p = p->next;
+		}
+		p->next = NULL;
+		last = p;
+		delete current;
+		len--;
+		return true;
+	}
+
+	//removes element at the end of the list
+	//list must exist and contain at least one element
+	//returns true if successful, decrement length
+	//returns false otherwise
+}
+//it is important to highlight the value of the idea here, these methods can work regardless of the data structure we decide to choose
+//implementation is secondary.
+//another way to implement front is as follows
+template <typename key, typename info>
+bool Sequence<key, info>::front(info& i) const //if true, value will be info of first element (passed as reference), also possible to add key reference
+{
+	if (first != NULL)
+	{
+		i = first->inf;
+		return true;
+	}
+	else
+	{
+		std::cout << "List is empty!" << std::endl;
+		return false;
+	}
+	//list must exist and contain at least one element
+	//assigns info section of first element to provided argument
+	//returns true if successful, false if list is empty
+}
+
+template <typename key, typename info>
+bool Sequence<key, info>::back(info& i) const
+{	
+	//test combining with || last == NULL
+	if (isempty())
+	{
+		std::cout << "List is empty!" << std::endl;
+		return false;
+	}
+	if (last != NULL)
+	{
+		i = last->inf;
+		return true;
+	}
+	else
+	{
+		std::cout << "List is empty!" << std::endl;
+		return false;
+	}
+	//same as above, but for last element
+}
+
+template <typename key, typename info>
+bool Sequence<key, info>::getinfo(info& i, const key& k, int which) //name of these arguments isnt necessary becuase they are rather distinct, it is up to you
+{
+	//TODO
+	if (isempty())
+	{
+		std::cout << "List is empty!" << std::endl;
+		return false;
+	}
+	current = find(k, which);
+	if (current == NULL)
+	{
+		std::cout << "Element does not exist!" << std::endl;
+		return false;
+	}
+	else
+	{
+		i = current->inf;
+		return true;
+	}
+	//assigns info of an element with specified key and occurrance to info argument
+	//returns true if successful
+	//returns false if list is empty, or element with such key or occurrence cannot be found (think about returning nearest element to which if which itself doesn't exist)
+}
+
+template <typename key, typename info>
+int Sequence<key, info>::length() const
+{
+	return len;
+	//returns list length
+}
+
+template <typename key, typename info>
+bool Sequence<key, info>::isempty() const
+{
+	if (len == 0)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+	//returns true if list is empty, false otherwise
+}
+
+template <typename key, typename info>
+void Sequence<key, info>::clear()
+{
+	Node *temp = NULL;
+	while (first != NULL)
+	{
+		temp = first;
+		first = first->next;
+		delete temp;
+	}
+	last = NULL;
+	len = 0;
+	//empties the list
+	//be careful of memory!
+}
+
+template <typename key, typename info>
+bool Sequence<key, info>::search(const key& k, int which)
+{
+	if (isempty())
+	{
+		std::cout << "List is empty!";
+		return false;
+	}
+	int count = 0;
+	current = first;
+	if (!isempty()) //makes sure list isn't empty
+	{
+		while (count != which)
+		{
+			if (current->ki == k) //key = location specified by user
+			{
+				count++; //increase occurrance
+				if (count == which) //check if which = occurrance
+				{
+					std::cout << "Found!";
+					return true;
+				}
+				else if (current->next != NULL)
+				{
+					current = current->next;
+				}
+			}
+			else if (current->next != NULL)
+			{
+				current = current->next;
+			}
+			else
+			{ 
+				std::cout << "Not found!";
+				return false;
+			}
+		}
+	}
+	return false;
+	//finds element and returns its address
+}
+
+template <typename key, typename info>
+void Sequence<key, info>::reverse()
+{
+	if (isempty())
+	{
+		std::cout << "List is empty!" << std::endl;
+	}
+	else
+	{
+		Node* p = NULL;
+		current = first;
+		Node* q = NULL;
+		while (current != NULL)
+		{
+			q = current->next;
+			current->next = p;
+			if (current->next == NULL)
+			{
+				last = current;
+			}
+			p = current;
+			current = q;
+			
+		}
+		first = p;
+	}
+	
+	//reverses the list
+}
+
+template <typename key, typename info>
+void Sequence<key, info>::swap(Sequence<key, info>& s)
+{
+	Node *tFirst = this->first;
+	Node *tLast = this->last;
+	int tLen = this->len;
+	this->first = s.first;
+	this->last = s.last;
+	this->len = s.len;
+	s.first = tFirst;
+	s.last = tLast;
+	s.len = tLen;
+}
+#endif
+
+
+
+
+
+
+tests.cpp
+
+
+#include <iostream>
+#include "sll.hpp"
+using namespace std;
+/*
+Methods to test:
+insertAfter
+pushFront
+pushBack
+remove
+popFront
+popBack
+info front
+bool front
+bool back
+bool getInfo
+length
+isempty
+clear
+search
+operator<<
+sort
+reverse
+swap
+*/
+//TODO
+//add support for remove and insert for any list size (especially 1)
+
+template <typename key, typename info>
+void noElem(Sequence<key, info>& s)
+{
+    cout << "*** BEGIN TESTS FOR LIST WITH NO ELEMENT ***" << endl << endl;
+    cout << "Testing insertAfter..." << endl;
+    s.insertAfter(1, 2, 3);
+    cout << "Testing remove..." << endl;
+    s.remove(4);
+    cout << "Testing popFront..." << endl;
+    s.popFront();
+    cout << "Testing popBack..." << endl;
+    s.popBack();
+    int x = -1;
+    cout << "Testing front..." << endl;
+    s.front(x);
+    cout << "Front: " << x << endl;
+    s.back(x);
+    cout << "Testing back..." << endl;
+    cout << "Back: " << x << endl;
+    cout << "Testing getInfo..." << endl;
+    s.getinfo(x, 1);
+    cout << "getInfo: " << x << endl;
+    cout << "Testing length..." << endl;
+    cout << "Length = " << s.length() << endl;
+    cout << "Testing isempty..." << endl;
+    cout << "isempty = " << s.isempty() << endl;
+    cout << "Testing clear..." << endl;
+    s.clear();
+    cout << "Testing search..." << endl;
+    cout << "search = " << s.search(4) << endl;
+    cout << "Testing reverse..." << endl;
+    s.reverse();
+    cout << "*** END TESTS FOR LIST WITH NO ELEMENT ***" << endl << endl;
+}
+
+
+
+template <typename key, typename info>
+void oneElem(Sequence<key, info>& s)
+{
+    cout << "*** BEGIN TESTS FOR LIST WITH 1 ELEMENT ***" << endl << endl;
+    //populate list with one element
+    int k = 5;
+    int i = 4;
+    cout << "testing pushFront(5, 4) on empty list..." << endl;
+    s.pushFront(k, i);
+    cout << "List: " << s << ", Length = " << s.length() << endl << endl;
+
+    cout << "Clearing list..." << endl;
+    s.clear();
+    cout << "List: " << s << " Length = " << s.length() << endl << endl;
+    cout << "testing pushBack(5, 4) on empty list..." << endl;
+    s.pushBack(k, i);
+    cout << "List: " << s << ", Length = " << s.length() << endl << endl;
+
+    cout << "Testing front..." << endl;
+    int x = 0;
+    s.front(x);
+    cout << "Front Info: " << x << endl;
+    cout << "Testing Back..." << endl;
+    s.back(x);
+    cout << "Back Info: " << x << endl << endl;
+
+    cout << "Testing popFront..." << endl;
+    s.popFront();
+    cout << "List: " << s << ", Length = " << s.length() << endl << endl;
+
+    cout << "pushFront(5, 4)..." << endl;
+    s.pushFront(k, i);
+    cout << "List: " << s << ", Length = " << s.length() << endl << endl;
+
+    cout << "Testing popBack..." << endl;
+    s.popBack();
+    cout << "List: " << s << ", Length = " << s.length() << endl;
+    cout << "pushFront(5, 4)..." << endl << endl;
+    s.pushFront(k, i);
+
+    cout << "Testing remove with key that does not exist..." << endl;
+    cout << "remove(7)" << endl;
+    s.remove(7);
+    cout << "List: " << s << ", Length = " << s.length() << endl;
+    cout << "Testing remove with key that exists..." << endl;
+    cout << "remove(5)" << endl;
+    s.remove(k);
+    cout << "List: " << s << ", Length = " << s.length() << endl;
+    cout << "pushFront(5, 4)..." << endl << endl;
+    s.pushFront(k, i);
+
+    cout << "Testing getInfo with key that exists..." << endl;
+    cout << "getinfo(x, 4)" << endl;
+    s.getinfo(x, k);
+    cout << "getinfo: " << x << endl;
+    cout << "Testing getInfo with key that does not exist..." << endl;
+    cout << "getinfo(x, 7)" << endl;
+    s.getinfo(x, 7);
+    cout << "List: " << s << ", Length = " << s.length() << endl << endl;
+
+    cout << "Testing search with key that exists..." << endl;
+    cout << "search(5)" << s.search(k) << endl;
+    cout << "Testing search with key that does not exist..." << endl;
+    cout << "search(7)" << s.search(7) << endl << endl;
+
+    cout << "Testing reverse..." << endl;
+    cout << "List: " << s << ", Length = " << s.length() << endl;
+    cout << "*** END TESTS FOR LIST WITH 1 ELEMENT ***" << endl << endl;
+}
+
+template <typename key, typename info>
+void fiveElemTests(Sequence<key, info>& s)
+{
+    cout << "*** BEGIN TESTS FOR LIST WITH 5 ELEMENTS ***" << endl << endl;
+    
+    // Add five elements to the list
+    for (int i = 1; i <= 5; i++) {
+        cout << "Inserting (key: " << i << ", info: " << i * 10 << ") at the end..." << endl;
+        s.pushBack(i, i * 10);
+    }
+
+    cout << "List: " << s << ", Length = " << s.length() << endl << endl;
+    
+    cout << "Testing front..." << endl;
+    int x = 0;
+    s.front(x);
+    cout << "Front Info: " << x << endl;
+    
+    cout << "Testing Back..." << endl;
+    s.back(x);
+    cout << "Back Info: " << x << endl << endl;
+
+    cout << "Testing remove with key that does not exist..." << endl;
+    cout << "remove(7)" << endl;
+    s.remove(7);
+    cout << "List: " << s << ", Length = " << s.length() << endl;
+
+    cout << "Testing remove with key that exists..." << endl;
+    cout << "remove(3)" << endl;
+    s.remove(3);
+    cout << "List: " << s << ", Length = " << s.length() << endl << endl;
+
+    cout << "Testing getInfo with key that exists..." << endl;
+    s.getinfo(x, 2);
+    cout << "getinfo(x, 2): " << x << endl;
+
+    cout << "Testing getInfo with key that does not exist..." << endl;
+    cout << "getinfo(x, 7)" << endl;
+    s.getinfo(x, 7);
+    cout << "List: " << s << ", Length = " << s.length() << endl << endl;
+
+    cout << "Testing search with key that exists..." << endl;
+    cout << "search(4) = " << s.search(4) << endl;
+
+    cout << "Testing search with key that does not exist..." << endl;
+    cout << "search(7) = " << s.search(7) << endl << endl;
+
+    cout << "Testing reverse..." << endl;
+    cout << "Original: " << s << ", Length = " << s.length() << endl;
+    s.reverse();
+    cout << "Reversed: " << s << ", Length = " << s.length() << endl << endl;
+
+    cout << "Testing insertAfter..." << endl;
+    cout << "insertAfter(2, 60, 2)" << endl;
+    s.insertAfter(2, 60, 2);
+    cout << "List: " << s << ", Length = " << s.length() << endl;
+    cout << "Testing insertAfter after 2nd occurrance of key..." << endl;
+    cout << "insertAfter(2, 80, 2, 2)" << endl;
+    s.insertAfter(2, 80, 2, 2);
+    cout << "List: " << s << ", Length = " << s.length() << endl << endl;
+
+    cout << "Testing popFront..." << endl;
+    s.popFront();
+    cout << "List: " << s << ", Length = " << s.length() << endl;
+
+    cout << "Testing popBack..." << endl;
+    s.popBack();
+    cout << "List: " << s << ", Length = " << s.length() << endl << endl;
+
+    cout << "Testing pushFront..." << endl;
+    cout << "pushFront(0,0)" << endl;
+    s.pushFront(0, 0);
+    cout << "List: " << s << ", Length = " << s.length() << endl;
+
+    cout << "Testing pushBack..." << endl;
+    cout << "pushBack(6, 66)" << endl;
+    s.pushBack(6, 66);
+    cout << "List: " << s << ", Length = " << s.length() << endl << endl;
+
+    cout << "Testing isempty..." << endl;
+    cout << "isempty = " << s.isempty() << endl << endl;
+
+    cout << "Testing search on existing key with different occurrances..." << endl;
+    cout << "search(2, 1)" << s.search(2, 1) << endl;
+    cout << "search(2, 2)" << s.search(2, 2) << endl;
+    cout << "search(2, 3)" << s.search(2, 3) << endl;
+    cout << "search(2, 4)" << s.search(2, 4) << endl << endl;
+
+    cout << "Testing clear..." << endl;
+    s.clear();
+    cout << "List: " << s << ", Length = " << s.length() << endl << endl;
+
+    cout << "Testing search on an empty list..." << endl;
+    cout << "search(2) = " << s.search(2) << endl;
+
+    cout << "*** END TESTS FOR LIST WITH 5 ELEMENTS ***" << endl << endl;
+}
+
+template <typename key, typename info>
+void testSwap(Sequence<key, info>& first, Sequence<key, info>& second)
+{
+    cout << "*** BEGIN TESTS FOR SWAP ***" << endl << endl;
+    cout << "Before swapping..." << endl;
+    cout << "List1: " << first << ", Length = " << first.length() << endl;
+    cout << "List2: " << second << ", Length = " << second.length() << endl;
+    cout << endl << "After swapping..." << endl;
+    first.swap(second);
+    cout << "List1: " << first << ", Length = " << first.length() << endl;
+    cout << "List2: " << second << ", Length = " << second.length() << endl;
+}
+
+
+
+
+
+main.cpp
+
+
+
+
+#include <iostream>
+#include "sll.hpp"
+#include "tests.cpp"
+using namespace std;
+
+int main()
+{
+    
+    Sequence<int, int> oneList;
+    oneElem(oneList);
+    Sequence<int, int> noList;
+    noElem(noList);
+    Sequence<int, int> fiveList;
+    fiveElemTests(fiveList);
+
+    
+    Sequence<int, int> source, result1, result2;
+    for (int i = 1; i < 6; i++)
+    {
+        source.pushBack(i, i * 5);
+    }
+    source.split(result1, 2, 1, result2, 2, 1);
+    cout << "Source: " << source << ", Length = " << source.length() << endl;
+    cout << "Result1: " << result1 << ", Length = " << result1.length() << endl;
+    cout << "Result2: " << result2 << ", Length = " << result2.length() << endl;
+    testSwap(result1, result2);
+    return 0;
+}
