@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/home/torx/Desktop/EGUI/Practice/MvcMovie/MvcMovie.csproj": {}
+    "/home/torx/Desktop/University/EGUI/Practice/MvcMovie/MvcMovie.csproj": {}
   },
   "projects": {
-    "/home/torx/Desktop/EGUI/Practice/MvcMovie/MvcMovie.csproj": {
+    "/home/torx/Desktop/University/EGUI/Practice/MvcMovie/MvcMovie.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/torx/Desktop/EGUI/Practice/MvcMovie/MvcMovie.csproj",
+        "projectUniqueName": "/home/torx/Desktop/University/EGUI/Practice/MvcMovie/MvcMovie.csproj",
         "projectName": "MvcMovie",
-        "projectPath": "/home/torx/Desktop/EGUI/Practice/MvcMovie/MvcMovie.csproj",
+        "projectPath": "/home/torx/Desktop/University/EGUI/Practice/MvcMovie/MvcMovie.csproj",
         "packagesPath": "/home/torx/.nuget/packages/",
-        "outputPath": "/home/torx/Desktop/EGUI/Practice/MvcMovie/obj/",
+        "outputPath": "/home/torx/Desktop/University/EGUI/Practice/MvcMovie/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/home/torx/.nuget/NuGet/NuGet.Config"
@@ -37,6 +37,26 @@
       "frameworks": {
         "net6.0": {
           "targetAlias": "net6.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[6.0.25, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[6.0.25, )"
+            },
+            "Microsoft.EntityFrameworkCore.Sqlite": {
+              "target": "Package",
+              "version": "[6.0.25, )"
+            },
+            "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
+              "target": "Package",
+              "version": "[6.0.16, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
