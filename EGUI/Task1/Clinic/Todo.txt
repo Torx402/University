@@ -1,0 +1,5 @@
+Now that we have login working, it is a good idea to adapt it to the different scenarios, for example
+* For the patient, we should a login page with registration, and when they are registered, only manager can access their activation, they shouldnt confirm it themselves
+* For the doctor, we should remove registraion, as doctor's account is created by admin
+
+We can specify that user keys are int's so that we can take int from user and apply to patient/doctor/manager info.
