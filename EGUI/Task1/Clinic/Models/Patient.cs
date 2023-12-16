@@ -9,5 +9,7 @@ namespace Clinic.Models
         [Required]
         [StringLength(100)]
         public string? Name{ get; set; }
+
+        public bool active {get; set;}
     }
 }

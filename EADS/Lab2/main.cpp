@@ -7,8 +7,8 @@ int main()
 {
     Ring<int, int> list;
 
-    list.push(1, 2);
-    list.push(1, 3);
-    Ring<int, int>::Itr ptr(list);
+    Ring<int, int>::Iter ptr;
+    cout << *ptr << endl; 
+
     return 0;
 }

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "vXbgxIlbdL26LKyzjGSZNShY3f3WDXOLBpQ9f01LylvWnKo5BHZjBMEAMdcjoW+U5hhhvGwSDhEjVsPQxbyd5w==",
+  "dgSpecHash": "1OJbHA6PcNX9GvKoOO43YdfvwZo+XAm9rXyzSL7h/9DCsAiMkR3JOH5IZeavz25LCIXyEbgrsWnqt6blultqkQ==",
   "success": true,
   "projectFilePath": "/home/torx/Desktop/University/EGUI/Practice/MvcMovie/MvcMovie.csproj",
   "expectedPackageFiles": [
@@ -225,7 +225,10 @@
     "/home/torx/.nuget/packages/system.threading.timer/4.3.0/system.threading.timer.4.3.0.nupkg.sha512",
     "/home/torx/.nuget/packages/system.windows.extensions/6.0.0/system.windows.extensions.6.0.0.nupkg.sha512",
     "/home/torx/.nuget/packages/system.xml.readerwriter/4.3.0/system.xml.readerwriter.4.3.0.nupkg.sha512",
-    "/home/torx/.nuget/packages/system.xml.xdocument/4.3.0/system.xml.xdocument.4.3.0.nupkg.sha512"
+    "/home/torx/.nuget/packages/system.xml.xdocument/4.3.0/system.xml.xdocument.4.3.0.nupkg.sha512",
+    "/home/torx/.nuget/packages/microsoft.netcore.app.ref/6.0.25/microsoft.netcore.app.ref.6.0.25.nupkg.sha512",
+    "/home/torx/.nuget/packages/microsoft.aspnetcore.app.ref/6.0.25/microsoft.aspnetcore.app.ref.6.0.25.nupkg.sha512",
+    "/home/torx/.nuget/packages/microsoft.netcore.app.host.linux-x64/6.0.25/microsoft.netcore.app.host.linux-x64.6.0.25.nupkg.sha512"
   ],
   "logs": []
 }

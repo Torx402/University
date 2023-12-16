@@ -1,6 +1,7 @@
 #ifndef RING_HPP
 #define RING_HPP
-
+#include <iostream>
+#include <cassert>
 template<typename key, typename info>
 class Ring
 {
@@ -13,35 +14,73 @@ private:
         Node* Prev;
     };
     Node* first;
-    Node* last;
     int len;
+   	Node *find(const key& k, int which = 1)
+	{
+		int count = 0;
+		Node* current = first;
+
+		if (!isEmpty()) //makes sure list isn't empty
+		{
+			while (count != which)
+			{
+				if (current->ki == k) //key = location specified by user
+				{
+					count++; //increase occurrance
+					if (count == which) //check if which = occurrance
+					{
+						return current;
+					}
+					else if (current->Next != NULL && current->Next != first)
+					{
+						current = current->Next;
+					}
+				}
+				else if (current->Next != NULL)
+				{
+					current = current->Next;
+				}
+				else
+				{ 
+				return NULL;
+				}
+			}
+		}
+		return NULL;
+		//finds element and returns its address
+	}
 public:
     Ring();
     ~Ring();
     const Ring<key, info>& operator=(const Ring<key, info>& other);
+    template <typename K, typename I>
     class Itr
     {
     private:
         Node* current;
+        const Ring<key, info>* ring; //keeps in mind which ring it is working on
     public:
         Itr()
         {
             current = NULL;
+            ring = NULL;
         }
-        Itr(const Ring<key, info>& ring)
+        Itr(const Ring<key, info>& Ring)
         {
-            current = ring.first;
+            current = Ring.first;
+            ring = &Ring;
         }
-        const Itr& operator=(const Itr& other)
+        const Itr& operator=(const Itr& Other)
         {
-            if (this != &other)
+            if (this != &Other)
             {
-                current = other.current;
+                current = Other.current;
             }
             return *this;
         }
         Itr& operator++()
         {
+            assert(current->Next);
             current = current->Next;
             
             return *this;
@@ -52,27 +91,48 @@ public:
 
             return *this;
         }
-        info operator*()
+        I& operator*()
         {
+            assert(current != NULL);
             return current->Info;
         }
-
-        bool operator==(const Itr& other) const
+        void begin()
         {
-            return (current == other.current);
+            assert(ring && !ring->isEmpty());
+            current = ring->First;
         }
-        bool operator!=(const Itr& other) const
+        void end()
         {
-            return (current != other.current);
+            assert(ring && !ring->IsEmpty());
+            current = ring->Prev;
+        }
+
+        K& Key()
+        {
+            assert(current);
+            return current->Key;
+        }
+
+        bool operator==(const Itr& Other) const
+        {
+            return (current == Other.current);
+        }
+        bool operator!=(const Itr& Other) const
+        {
+            return (current != Other.current);
         }
 
         friend class Ring;
     };
+    typedef Itr<key, info> Iter;
     bool isEmpty();
     void clear();
-    int length();
-    void search();
+    int length() {return len;}
     void push(const key& k, const info& i);
+    bool remove(const Itr<key, info>& itr);
+    bool search(Itr<key, info>& itr ,const info& I, int which = 1);
+    bool insertAfter(const key& What, const info& iWhat, const Itr<key, info>& itr, int which = 1);
+
 };
 
 template <typename key, typename info>
@@ -101,14 +161,8 @@ void Ring<key, info>::clear()
     {
         return;
     }
-    if (len == 1)
-    {
-        delete first;
-        len--;
-        return;
-    }
     Node* curr = first;
-    last = first->Prev;
+    Node* last = first->Prev;
     while (curr != last)
     {
         first = first->Next;
@@ -134,21 +188,11 @@ void Ring<key, info>::push(const key& k, const info& i)
     elem->Info = i;
     elem->Key = k;
 
-    if (len == 0)
+    if (isEmpty())
     {
         first = elem;
-        first->Next = NULL;
-        first->Prev = NULL;
-        len++;
-        return;
-    }
-    if (len == 1)
-    {
-        first = elem;
-        ptr->Prev = elem;
-        ptr->Next = elem;
-        elem->Next = ptr;
-        elem->Prev = ptr;
+        first->Next = first;
+        first->Prev = first;
         len++;
         return;
     }
@@ -161,6 +205,42 @@ void Ring<key, info>::push(const key& k, const info& i)
     prev->Next = first;
     len++;
 }
+
+template <typename key, typename info>
+bool Ring<key, info>::search(Itr<key, info>& itr,const info& I, int which)
+{
+    assertitr.ring
+    if (isEmpty())
+    {
+        return false;
+    }
+    int count = 0;
+    if (first == I)
+    {
+        count++;
+        if (count == which)
+        {
+            return true;
+        }
+    }
+    ++itr;
+    
+    while(itr != first)
+    {
+        if(*itr == I)
+        {
+            count++;
+        }
+        if(count == which)
+        {
+            return true;
+        }
+        else ++itr;
+    }
+    return false;
+    
+}
+
 
 
 
