@@ -89,6 +89,39 @@ public:
             return current->Key;
         }
         
+        Itr& goTo(const info& iWhat, int which = 1)
+        {
+            assert(ring);
+            Itr temp = *this;
+            int count = 0;
+            if (**this == iWhat)
+            {
+                count++;
+                if (count == which)
+                {
+                    return *this;
+                }
+            }
+            ++(*this);
+            
+            while(this->current != ring->first)
+            {
+                if(**this == iWhat)
+                {
+                    count++;
+                }
+                if(count == which)
+                {
+                    return *this;
+                }
+                else ++(*this);
+            }
+            return temp;
+        }
+        void remove()
+        {
+            
+        }
 
         bool operator==(const Itr& Other) const { return (current == Other.current); }
         bool operator!=(const Itr& Other) const { return (current != Other.current); }
