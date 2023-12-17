@@ -51,14 +51,20 @@ private:
 	}
 public:
     Ring();
-    ~Ring();
+    ~Ring() { clear(); }
+    void copyRing(const Ring<key, info>& Other);
     const Ring<key, info>& operator=(const Ring<key, info>& other);
     template <typename K, typename I>
     class Itr
     {
     private:
         Node* current;
-        const Ring<key, info>* ring; //keeps in mind which ring it is working on
+        Ring<key, info>* ring; //keeps in mind which ring it is working on
+        void copyItr(const Itr& Other)
+        {
+            current = Other.current;
+            ring = Other.ring;
+        }
     public:
         Itr()
         {
@@ -74,7 +80,7 @@ public:
         {
             if (this != &Other)
             {
-                current = Other.current;
+                copyItr(Other);
             }
             return *this;
         }
@@ -101,11 +107,6 @@ public:
             assert(ring && !ring->isEmpty());
             current = ring->First;
         }
-        void end()
-        {
-            assert(ring && !ring->IsEmpty());
-            current = ring->Prev;
-        }
 
         K& Key()
         {
@@ -113,26 +114,19 @@ public:
             return current->Key;
         }
 
-        bool operator==(const Itr& Other) const
-        {
-            return (current == Other.current);
-        }
-        bool operator!=(const Itr& Other) const
-        {
-            return (current != Other.current);
-        }
+        bool operator==(const Itr& Other) const { return (current == Other.current); }
+        bool operator!=(const Itr& Other) const { return (current != Other.current); }
 
         friend class Ring;
     };
     typedef Itr<key, info> Iter;
-    bool isEmpty();
+    bool isEmpty() { return (len == 0); }
     void clear();
     int length() {return len;}
     void push(const key& k, const info& i);
     bool remove(const Itr<key, info>& itr);
     bool search(Itr<key, info>& itr ,const info& I, int which = 1);
     bool insertAfter(const key& What, const info& iWhat, const Itr<key, info>& itr, int which = 1);
-
 };
 
 template <typename key, typename info>
@@ -140,18 +134,6 @@ Ring<key, info>::Ring()
 {
     first = NULL;
     len = 0;
-}
-
-template <typename key, typename info>
-Ring<key, info>::~Ring()
-{
-    clear();
-}
-
-template <typename key, typename info>
-bool Ring<key, info>::isEmpty()
-{
-    return (len == 0);
 }
 
 template <typename key, typename info>
@@ -207,9 +189,9 @@ void Ring<key, info>::push(const key& k, const info& i)
 }
 
 template <typename key, typename info>
-bool Ring<key, info>::search(Itr<key, info>& itr,const info& I, int which)
+bool Ring<key, info>::search(Itr<key, info>& itr, const info& I, int which)
 {
-    assertitr.ring
+    assert(itr.ring == this);
     if (isEmpty())
     {
         return false;
@@ -238,7 +220,6 @@ bool Ring<key, info>::search(Itr<key, info>& itr,const info& I, int which)
         else ++itr;
     }
     return false;
-    
 }
 
 
