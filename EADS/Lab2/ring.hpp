@@ -15,45 +15,19 @@ private:
     };
     Node* first;
     int len;
-   	Node *find(const key& k, int which = 1)
-	{
-		int count = 0;
-		Node* current = first;
-
-		if (!isEmpty()) //makes sure list isn't empty
-		{
-			while (count != which)
-			{
-				if (current->ki == k) //key = location specified by user
-				{
-					count++; //increase occurrance
-					if (count == which) //check if which = occurrance
-					{
-						return current;
-					}
-					else if (current->Next != NULL && current->Next != first)
-					{
-						current = current->Next;
-					}
-				}
-				else if (current->Next != NULL)
-				{
-					current = current->Next;
-				}
-				else
-				{ 
-				return NULL;
-				}
-			}
-		}
-		return NULL;
-		//finds element and returns its address
-	}
 public:
     Ring();
+    Ring(const Ring<key, info>& Other);
     ~Ring() { clear(); }
     void copyRing(const Ring<key, info>& Other);
-    const Ring<key, info>& operator=(const Ring<key, info>& other);
+    const Ring<key, info>& operator=(const Ring<key, info>& Other)
+    {
+        if (this != &Other)
+        {
+            copyRing(Other);
+        }
+        return *this;
+    }
     template <typename K, typename I>
     class Itr
     {
@@ -71,7 +45,7 @@ public:
             current = NULL;
             ring = NULL;
         }
-        Itr(const Ring<key, info>& Ring)
+        Itr(Ring<key, info>& Ring)
         {
             current = Ring.first;
             ring = &Ring;
@@ -93,11 +67,12 @@ public:
         }
         Itr& operator--()
         {
+            assert(current->Prev);
             current = current->Prev;
 
             return *this;
         }
-        I& operator*()
+        const I& operator*() const
         {
             assert(current != NULL);
             return current->Info;
@@ -105,14 +80,15 @@ public:
         void begin()
         {
             assert(ring && !ring->isEmpty());
-            current = ring->First;
+            current = ring->first;
         }
 
-        K& Key()
+        const K& Key() const
         {
             assert(current);
             return current->Key;
         }
+        
 
         bool operator==(const Itr& Other) const { return (current == Other.current); }
         bool operator!=(const Itr& Other) const { return (current != Other.current); }
@@ -123,10 +99,12 @@ public:
     bool isEmpty() { return (len == 0); }
     void clear();
     int length() {return len;}
-    void push(const key& k, const info& i);
+    bool push(const key& k, const info& i);
+    bool pop();
     bool remove(const Itr<key, info>& itr);
-    bool search(Itr<key, info>& itr ,const info& I, int which = 1);
-    bool insertAfter(const key& What, const info& iWhat, const Itr<key, info>& itr, int which = 1);
+    bool search(Itr<key, info>& itr ,const key& what, const info& iWhat, int which = 1);
+    bool insertAfter(const key& What, const info& iWhat, int which = 1);
+    bool insertBefore(Itr<key, info>& itr ,const key& What, const info& iWhat, int which = 1);
 };
 
 template <typename key, typename info>
@@ -134,6 +112,61 @@ Ring<key, info>::Ring()
 {
     first = NULL;
     len = 0;
+}
+
+template <typename key, typename info>
+Ring<key, info>::Ring(const Ring<key, info>& Other)
+{
+    first = NULL;
+    copyRing(Other);
+}
+
+template <typename key, typename info>
+void Ring<key, info>::copyRing(const Ring<key, info>& Other)
+{
+    Node* newNode;
+    Node* current;
+    Node* last;
+    Node* q;
+    if (first != NULL)
+    {
+        clear();
+    }
+
+    if (Other.first == NULL)
+    {
+        first = NULL;
+        len = 0;
+    }
+    else
+    {
+        current = Other.first;
+        last = current->Prev;
+
+        len = Other.len;
+        //First Node
+        first = new Node;
+        first->Key = current->Key;
+        first->Info = current->Info;
+        first->Next = first;
+        first->Prev = first;
+        q = first;
+
+        current = current->Next;
+        //Other nodes
+        while (current != Other.first)
+        {
+            newNode = new Node;
+            newNode->Info = current->Info;
+            newNode->Key = current->Key;
+            newNode->Next = first;
+            newNode->Prev = q;
+            q->Next = newNode;
+            first->Prev = newNode;
+            q = newNode;
+            current = current->Next;
+        }
+    }
 }
 
 template <typename key, typename info>
@@ -162,7 +195,7 @@ void Ring<key, info>::clear()
 }
 
 template <typename key, typename info>
-void Ring<key, info>::push(const key& k, const info& i)
+bool Ring<key, info>::push(const key& k, const info& i)
 {
     Node* ptr = first;
     Node* prev = new Node;
@@ -176,20 +209,28 @@ void Ring<key, info>::push(const key& k, const info& i)
         first->Next = first;
         first->Prev = first;
         len++;
-        return;
+        return true;
     }
-
-    prev = first->Prev;
-    first = elem;
-    elem->Prev = prev;
-    elem->Next = ptr;
-    ptr->Prev = first;
-    prev->Next = first;
-    len++;
+    else
+    {
+        prev = first->Prev;
+        first = elem;
+        elem->Prev = prev;
+        elem->Next = ptr;
+        ptr->Prev = first;
+        prev->Next = first;
+        len++;
+        return true;
+    }
+    return false;
 }
-
 template <typename key, typename info>
-bool Ring<key, info>::search(Itr<key, info>& itr, const info& I, int which)
+bool Ring<key, info>::pop()
+{
+
+}
+template <typename key, typename info>
+bool Ring<key, info>::search(Itr<key, info>& itr, const key& what, const info& iWhat, int which)
 {
     assert(itr.ring == this);
     if (isEmpty())
@@ -197,7 +238,7 @@ bool Ring<key, info>::search(Itr<key, info>& itr, const info& I, int which)
         return false;
     }
     int count = 0;
-    if (first == I)
+    if (*itr == iWhat && itr.Key() == what)
     {
         count++;
         if (count == which)
@@ -207,9 +248,9 @@ bool Ring<key, info>::search(Itr<key, info>& itr, const info& I, int which)
     }
     ++itr;
     
-    while(itr != first)
+    while(itr.current != first)
     {
-        if(*itr == I)
+        if(*itr == iWhat && itr.Key() == what)
         {
             count++;
         }
