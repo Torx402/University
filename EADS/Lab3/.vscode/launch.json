@@ -1,0 +1,11 @@
+{
+    "label": "Run with Arguments",
+    "type": "shell",
+    "command": "./${fileBasenameNoExtension}",
+    "args": ["arg1", "arg2", "arg3"], // Replace with your run-time arguments
+    "group": "none",
+    "presentation": {
+        "reveal": "always",
+        "panel": "new"
+    }
+}

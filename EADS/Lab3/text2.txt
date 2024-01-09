@@ -1,0 +1,1 @@
+This text includes a mix of common and unique words, and it also contains a pangram – a sentence with every letter of the alphabet. Feel free to use this text as input for your program to test how it handles different words, including duplicates.
