@@ -64,6 +64,16 @@ private:
             inorder(os, d->right);
         }
     }
+
+        void inorderK(ostream& os, Node<key, info>* d) const
+    {
+        if (d != NULL)
+        {
+            inorderK(os, d->left);
+            cout <<"(" << d->Key << "), ";
+            inorderK(os, d->right);
+        }
+    }
     int height(Node<key, info>* d)
     {
         if (d == NULL)
@@ -322,10 +332,6 @@ public:
     }
     template <typename K, typename I>
     friend std::ostream& operator<<(std::ostream& os, const Dictionary<K, I>& dict);
-    void print() const
-    {
-        inorder(root);
-    }
     void clear()
     {
         destroy(root);
@@ -384,6 +390,16 @@ public:
         newNode->right = NULL;
         newNode->bfactor = 0;
         insertIntoTree(root, newNode, isTaller);
+    }
+    void keys() const
+    {
+        if (root == NULL)
+        {
+            return;
+        }
+        cout << "Keys: {";
+        inorderK(std::cout, root);
+        cout << "}" << endl;
     }
 };
 
