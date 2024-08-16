@@ -1,0 +1,3 @@
+,0,1,2
+0,Random Forest,SGDClassifier (OvA),SVM Classifier (OvO)
+1,1.0,0.5796703296703297,0.19607843137254902
